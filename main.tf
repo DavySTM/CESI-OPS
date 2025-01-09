@@ -1,6 +1,6 @@
 provider "google" {
-  project = cesi-ops
-  region  = "europe-west1"
+  project     = "cesi-ops"
+  region      = "europe-west1"
 }
 
 resource "null_resource" "build_image" {
