@@ -1,3 +1,8 @@
+provider "google" {
+  project = cesi-ops
+  region  = "europe-west1"
+}
+
 resource "null_resource" "build_image" {
   provisioner "local-exec" {
     command = "packer build -var 'artifact_url=https://europe-west1-go.pkg.dev/cesi-ops/depotartifcat/}' ./packer_template.json"
