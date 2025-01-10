@@ -27,6 +27,7 @@
         --location={{ location }}
         --repository={{ repository }}
         --path=/tmp/
+        -vvv
       args:
         creates: /tmp/app.tar.gz
 
