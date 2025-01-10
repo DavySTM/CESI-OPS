@@ -1,15 +1,29 @@
 ---
-- name: Add Google Cloud ops-agent repository
+- name: Create ops-agent variable files directory
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Add Google Cloud ops-agent key
   get_url:
     url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
-    dest: /usr/share/keyrings/cloud.google.gpg
+    dest: /etc/apt/keyrings/cloud.google.gpg
     mode: '0644'
 
 - name: Add Google Cloud ops-agent repository
   apt_repository:
-    repo: "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-ops-release main"
+    repo: "deb [signed-by=/etc/apt/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt google-cloud-ops-agent-$(. /etc/os-release && echo $VERSION_CODENAME)-all main"
     state: present
     filename: google-cloud-ops-agent
+
+- name: Install required packages
+  apt:
+    name: 
+      - apt-transport-https
+      - ca-certificates
+    state: present
+    update_cache: yes
 
 - name: Install ops-agent
   apt:

@@ -17,7 +17,7 @@ variable "project_id" {
 
 source "googlecompute" "app" {
   project_id          = var.project_id
-  zone               = "europe-west9-b"  # Changé de 'a' à 'b'
+  zone               = "europe-west1-b"
   source_image_family = "debian-11"
   ssh_username       = "packer"
   image_name         = "app-image-{{timestamp}}"
@@ -30,5 +30,11 @@ build {
 
   provisioner "ansible" {
     playbook_file = "./ops/ansible/playbook.yml"
+    user = "packer"
+    use_proxy = false
+    extra_arguments = [
+      "-e", "ansible_remote_tmp=/tmp/ansible",
+      "--ssh-extra-args", "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+    ]
   }
 }
