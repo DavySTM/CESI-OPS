@@ -13,12 +13,14 @@
         - /opt/app
         - /tmp/app
 
-    # URL correcte pour Artifact Registry
+    # Commande simplifiée pour Artifact Registry
     - name: Download application from Artifact Registry
       shell: |
-        gcloud storage cp europe-west9-docker.pkg.dev/{{ project_id | default('cesi-ops') }}/app-repo/app.tar.gz /tmp/app/
-      args:
-        creates: /tmp/app/app.tar.gz
+        gcloud artifacts files download app.tar.gz \
+          --project={{ project_id | default('cesi-ops') }} \
+          --location=europe-west9 \
+          --repository=app-repo \
+          --destination=/tmp/app/app.tar.gz
 
     - name: Extract application
       unarchive:
