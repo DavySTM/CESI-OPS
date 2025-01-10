@@ -13,18 +13,40 @@
         - /opt/app
         - /tmp/app
 
-    # Commande simplifiée pour Artifact Registry
+    # Téléchargement avec debug
     - name: Download application from Artifact Registry
       shell: |
-        gcloud artifacts files download app.tar.gz \
+        gcloud artifacts files download cesiappgo:1.0:app.tar.gz/app.tar.gz \
           --project={{ project_id | default('cesi-ops') }} \
           --location=europe-west9 \
           --repository=app-repo \
-          --destination=/tmp/app/app.tar.gz
+          --destination=/tmp/app
+      register: download_result
+
+    # Ajout de commandes de debug
+    - name: Debug - Show download result
+      debug:
+        var: download_result
+
+    - name: Debug - List tmp directory
+      shell: "ls -R /tmp/app"
+      register: ls_result
+
+    - name: Show directory content
+      debug:
+        var: ls_result.stdout_lines
+
+    - name: Find tar.gz file
+      shell: "find /tmp/app -name '*.tar.gz'"
+      register: find_result
+
+    - name: Show found files
+      debug:
+        var: find_result.stdout_lines
 
     - name: Extract application
       unarchive:
-        src: /tmp/app/app.tar.gz
+        src: "{{ find_result.stdout_lines[0] }}"  # Utilise le premier fichier trouvé
         dest: /opt/app
         remote_src: yes
 
