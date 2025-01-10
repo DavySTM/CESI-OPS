@@ -1,12 +1,22 @@
-FROM hashicorp/packer:latest
+FROM ubuntu:22.04
 
-# Installation des dépendances et d'Ansible via apk
-RUN apk add --no-cache \
+# Éviter les interactions pendant l'installation
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Installation de Packer, Python et Ansible
+RUN apt-get update && apt-get install -y \
+    wget \
+    unzip \
     python3 \
-    py3-pip \
-    openssh-client \
-    py3-ansible \
-    ansible
+    python3-pip \
+    ansible \
+    && rm -rf /var/lib/apt/lists/*
+
+# Installation de Packer
+RUN wget https://releases.hashicorp.com/packer/1.9.4/packer_1.9.4_linux_amd64.zip \
+    && unzip packer_1.9.4_linux_amd64.zip \
+    && mv packer /usr/local/bin/ \
+    && rm packer_1.9.4_linux_amd64.zip
 
 # Vérification des installations
 RUN packer --version && ansible --version
