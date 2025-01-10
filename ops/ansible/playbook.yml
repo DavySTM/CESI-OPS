@@ -9,9 +9,6 @@
     location: "europe-west9"  # La localisation de votre Artifact Registry
     repository: "app-repo"  # Le nom de votre repository dans Artifact Registry
 
-  collections:
-    - google.cloud  # Assurez-vous que cette collection est bien installée
-
   roles:
     - ops_agent
 
@@ -23,12 +20,15 @@
         mode: '0755'
 
     - name: Download application archive from Artifact Registry
-      google.cloud.gcp_artifact_registry_file:
-        name: "app.tar.gz"  # Le nom de votre fichier dans Artifact Registry
-        project: "{{ gcp_project }}"  # Le projet Google Cloud
-        location: "{{ location }}"  # La localisation de l'Artifact Registry
-        repository: "{{ repository }}"  # Le repository dans Artifact Registry
-        dest: "/tmp/app.tar.gz"  # Destination du fichier téléchargé
+      shell: >
+        gcloud artifacts files download
+        app.tar.gz
+        --project={{ gcp_project }}
+        --location={{ location }}
+        --repository={{ repository }}
+        --path=/tmp/
+      args:
+        creates: /tmp/app.tar.gz
 
     - name: Extract application
       unarchive:
