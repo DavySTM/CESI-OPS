@@ -3,6 +3,12 @@
   hosts: all
   become: yes
   
+  vars:
+    # Définir les variables pour le projet GCP, la localisation et le repository
+    gcp_project: "your-google-cloud-project-id"  # Remplacez par votre ID de projet Google Cloud
+    location: "europe-west9"  # La localisation de votre Artifact Registry
+    repository: "app-repo"  # Le nom de votre repository dans Artifact Registry
+
   roles:
     - ops_agent
 
@@ -15,11 +21,11 @@
 
     - name: Download application archive from Artifact Registry
       google.cloud.gcp_artifact_registry_file:
-        name: "app.tar.gz"
-        project: "{{ gcp_project }}"
-        location: "europe-west9"
-        repository: "app-repo"
-        dest: "/tmp/app.tar.gz"
+        name: "app.tar.gz"  # Le nom de votre fichier dans Artifact Registry
+        project: "{{ gcp_project }}"  # Le projet Google Cloud
+        location: "{{ location }}"  # La localisation de l'Artifact Registry
+        repository: "{{ repository }}"  # Le repository dans Artifact Registry
+        dest: "/tmp/app.tar.gz"  # Destination du fichier téléchargé
 
     - name: Extract application
       unarchive:
@@ -36,7 +42,7 @@
 
     - name: Create systemd service
       template:
-        src: templates/app.service.j2
+        src: templates/app.service.j2  # Assurez-vous que le fichier de template existe
         dest: /etc/systemd/system/app.service
         mode: '0644'
       notify: restart app
