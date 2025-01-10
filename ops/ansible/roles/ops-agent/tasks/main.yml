@@ -1,0 +1,24 @@
+---
+- name: Add Google Cloud ops-agent repository
+  get_url:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    dest: /usr/share/keyrings/cloud.google.gpg
+    mode: '0644'
+
+- name: Add Google Cloud ops-agent repository
+  apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-ops-release main"
+    state: present
+    filename: google-cloud-ops-agent
+
+- name: Install ops-agent
+  apt:
+    name: google-cloud-ops-agent
+    state: present
+    update_cache: yes
+
+- name: Enable and start ops-agent
+  systemd:
+    name: google-cloud-ops-agent
+    enabled: yes
+    state: started

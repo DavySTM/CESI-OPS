@@ -1,0 +1,39 @@
+steps:
+  # Vérification de l'environnement
+  - name: 'ubuntu'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Contenu du répertoire:"
+        ls -la
+
+  # Scan des secrets
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gcloud beta security secret-manager scan-project || echo "Erreur scan-project mais on continue"
+
+  # Scan de sécurité de l'archive
+  - name: 'aquasec/trivy'
+    args: ['fs', './app.tar.gz']
+    
+  # Push vers Artifact Registry
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gcloud artifacts generic upload \
+          --project=${PROJECT_ID} \
+          --location=europe-west9 \
+          --repository=app-repo \
+          --source=./app.tar.gz \
+          --destination-path=app.tar.gz \
+          --package=cesiappgo \
+          --version=1.0
+
+options:
+  logging: CLOUD_LOGGING_ONLY

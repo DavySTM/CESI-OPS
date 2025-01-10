@@ -1,0 +1,23 @@
+steps:
+  # Construction de l'image avec Packer et Ansible
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build',
+      '-t', 'packer-ansible',
+      '-f', 'ops/packer/Dockerfile',
+      '.'
+    ]
+
+  # Initialisation de Packer
+  - name: 'packer-ansible'
+    args: ['init', './ops/packer/build.pkr.hcl']
+    
+  # Build de l'image
+  - name: 'packer-ansible'
+    args: [
+      'build',
+      '-var', 'project_id=${PROJECT_ID}',
+      './ops/packer/build.pkr.hcl'
+    ]
+
+timeout: "1800s"

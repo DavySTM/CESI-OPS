@@ -1,0 +1,11 @@
+steps:
+  # Création du bucket pour les states Terraform
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: [
+      'storage',
+      'buckets',
+      'create',
+      'gs://${PROJECT_ID}-terraform-state',
+      '--location=europe-west9',
+      '--uniform-bucket-level-access'
+    ]

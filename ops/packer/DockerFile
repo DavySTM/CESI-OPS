@@ -1,0 +1,10 @@
+FROM hashicorp/packer:latest
+
+# Installation des dépendances
+RUN apk add --no-cache python3 py3-pip openssh-client
+
+# Installation d'Ansible
+RUN pip3 install ansible
+
+# Vérification des installations
+RUN packer --version && ansible --version

@@ -1,0 +1,49 @@
+---
+- name: Configure application server
+  hosts: all
+  become: yes
+  
+  roles:
+    - ops_agent
+
+  tasks:
+    - name: Create app directory
+      file:
+        path: /opt/app
+        state: directory
+        mode: '0755'
+
+    - name: Download application archive from Artifact Registry
+      google.cloud.gcp_artifact_registry_file:
+        name: "app.tar.gz"
+        project: "{{ gcp_project }}"
+        location: "europe-west9"
+        repository: "app-repo"
+        dest: "/tmp/app.tar.gz"
+
+    - name: Extract application
+      unarchive:
+        src: /tmp/app.tar.gz
+        dest: /opt/app
+        remote_src: yes
+
+    - name: Set permissions
+      file:
+        path: /opt/app
+        state: directory
+        recurse: yes
+        mode: '0755'
+
+    - name: Create systemd service
+      template:
+        src: templates/app.service.j2
+        dest: /etc/systemd/system/app.service
+        mode: '0644'
+      notify: restart app
+
+  handlers:
+    - name: restart app
+      systemd:
+        name: app
+        state: restarted
+        daemon_reload: yes
