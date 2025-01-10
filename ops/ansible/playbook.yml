@@ -2,38 +2,27 @@
 - name: Configure application server
   hosts: all
   become: yes
-
-  vars:
-    # Définir les variables pour le projet GCP, la localisation et le repository
-    gcp_project: "your-google-cloud-project-id"  # Remplacez par votre ID de projet Google Cloud
-    location: "europe-west9"  # La localisation de votre Artifact Registry
-    repository: "app-repo"  # Le nom de votre repository dans Artifact Registry
-
-  roles:
-    - ops_agent
-
+  
   tasks:
-    - name: Create app directory
+    - name: Create required directories
       file:
-        path: /opt/app
+        path: "{{ item }}"
         state: directory
         mode: '0755'
+      with_items:
+        - /opt/app
+        - /tmp/app
 
-    - name: Download application archive from Artifact Registry
-      shell: >
-        gcloud artifacts files download
-        app.tar.gz
-        --project={{ gcp_project }}
-        --location={{ location }}
-        --repository={{ repository }}
-        --path=/tmp/
-        -vvv
+    # URL correcte pour Artifact Registry
+    - name: Download application from Artifact Registry
+      shell: |
+        gcloud storage cp europe-west9-docker.pkg.dev/{{ project_id | default('cesi-ops') }}/app-repo/app.tar.gz /tmp/app/
       args:
-        creates: /tmp/app.tar.gz
+        creates: /tmp/app/app.tar.gz
 
     - name: Extract application
       unarchive:
-        src: /tmp/app.tar.gz
+        src: /tmp/app/app.tar.gz
         dest: /opt/app
         remote_src: yes
 
@@ -46,7 +35,7 @@
 
     - name: Create systemd service
       template:
-        src: templates/app.service.j2  # Assurez-vous que le fichier de template existe
+        src: app.service.j2
         dest: /etc/systemd/system/app.service
         mode: '0644'
       notify: restart app
@@ -57,3 +46,6 @@
         name: app
         state: restarted
         daemon_reload: yes
+
+  roles:
+    - ops_agent
