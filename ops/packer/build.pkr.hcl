@@ -17,7 +17,7 @@ variable "project_id" {
 
 source "googlecompute" "app" {
   project_id          = var.project_id
-  zone               = "europe-west9-a"
+  zone               = "europe-west9-b"  # Changé de 'a' à 'b'
   source_image_family = "debian-11"
   ssh_username       = "packer"
   image_name         = "app-image-{{timestamp}}"
@@ -29,6 +29,6 @@ build {
   sources = ["source.googlecompute.app"]
 
   provisioner "ansible" {
-    playbook_file = "./ops/ansible/playbook.yml"  # Chemin modifié ici
+    playbook_file = "./ops/ansible/playbook.yml"
   }
 }
