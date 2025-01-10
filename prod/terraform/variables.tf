@@ -19,8 +19,3 @@ variable "machine_type" {
   type        = string
   default     = "e2-medium"
 }
-
-variable "domain_name" {
-  description = "Nom de domaine pour l'application"
-  type        = string
-}
