@@ -1,27 +1,28 @@
 steps:
-  # Vérification de la structure
-  - name: 'ubuntu'
-    args: ['ls', '-R', '/workspace']
-
   # Construction de l'image avec Packer et Ansible
   - name: 'gcr.io/cloud-builders/docker'
     args: [
       'build',
-      '-t', 'packer-ansible',
+      '-t', 'gcr.io/${PROJECT_ID}/packer-ansible',
       '-f', '/workspace/ops/packer/Dockerfile',
       '.'
     ]
 
   # Initialisation de Packer
-  - name: 'packer-ansible'
+  - name: 'gcr.io/${PROJECT_ID}/packer-ansible'
+    entrypoint: 'packer'
     args: ['init', '/workspace/ops/packer/build.pkr.hcl']
     
   # Build de l'image
-  - name: 'packer-ansible'
+  - name: 'gcr.io/${PROJECT_ID}/packer-ansible'
+    entrypoint: 'packer'
     args: [
       'build',
       '-var', 'project_id=${PROJECT_ID}',
       '/workspace/ops/packer/build.pkr.hcl'
     ]
+
+images:
+  - 'gcr.io/${PROJECT_ID}/packer-ansible'
 
 timeout: "1800s"
